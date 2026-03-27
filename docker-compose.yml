@@ -1,0 +1,51 @@
+# docker-compose.yml
+version: '3.8'
+
+services:
+  backend:
+    build:
+      context: .
+      dockerfile: backend/Dockerfile
+    env_file:
+      - .env
+    ports:
+      - "8000:8000"
+    # environment:
+    #   - GROQ_API_KEY=${GROQ_API_KEY}
+    #   - GROQ_MODEL=llama3-70b-8192
+    #   - SQLITE_PATH=/app/data/insurance.db
+    #   - CHROMA_PATH=/app/chroma_db
+    #   - ENV=production
+    #   - CORS_ORIGINS=http://localhost:5173,http://localhost:80
+    volumes:
+      - insurance-data:/app/data
+      - chroma-data:/app/chroma_db
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/api/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    networks:
+      - insurance-network
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+      args:
+        - VITE_API_URL=http://localhost:8000/api
+    ports:
+      - "80:80"
+    depends_on:
+      backend:
+        condition: service_healthy
+    networks:
+      - insurance-network
+
+networks:
+  insurance-network:
+    driver: bridge
+
+volumes:
+  insurance-data:
+  chroma-data:
