@@ -90,7 +90,21 @@ jobs:
             --cluster $ECS_CLUSTER \
             --service $ECS_SERVICE_FRONTEND \
             --force-new-deployment
-
+      
+      - name: Wait for ECS deployment
+        run: |
+          echo "Waiting for backend service to stabilize..."
+          aws ecs wait services-stable \
+            --cluster ${{ secrets.ECS_CLUSTER }} \
+            --services ${{ secrets.ECS_SERVICE_BACKEND }}
+          
+          echo "Waiting for frontend service to stabilize..."
+          aws ecs wait services-stable \
+            --cluster ${{ secrets.ECS_CLUSTER }} \
+            --services ${{ secrets.ECS_SERVICE_FRONTEND }}
+          
+          echo "Additional wait for container initialization..."
+          sleep 60
   health-check:
     needs: [build-and-deploy-backend, build-and-deploy-frontend]
     runs-on: ubuntu-latest
