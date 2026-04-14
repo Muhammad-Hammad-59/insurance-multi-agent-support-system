@@ -95,18 +95,53 @@ jobs:
     needs: [build-and-deploy-backend, build-and-deploy-frontend]
     runs-on: ubuntu-latest
     steps:
-      - name: Wait for deployment
-        run: sleep 60
+      - name: Wait for deployment to stabilize
+        run: sleep 120  # Increase wait time to 2 minutes
       
-      - name: Check backend health
+      - name: Debug - Print ALB DNS
         run: |
-          curl -f http://${{ secrets.ALB_DNS }}/api/health || exit 1
+          echo "ALB DNS: ${{ secrets.ALB_DNS }}"
+          # Check if secret exists
+          if [ -z "${{ secrets.ALB_DNS }}" ]; then
+            echo "ALB_DNS secret is empty!"
+            exit 1
+          fi
+      
+      - name: Test DNS resolution
+        run: |
+          # Test if DNS resolves
+          nslookup ${{ secrets.ALB_DNS }} || exit 1
+      
+      - name: Check backend health with retry
+        run: |
+          # Retry up to 10 times with 30 second intervals
+          for i in {1..10}; do
+            echo "Attempt $i: Checking health..."
+            if curl -f -s -o /dev/null -w "%{http_code}" http://${{ secrets.ALB_DNS }}/api/health | grep -q "200"; then
+              echo "Backend is healthy!"
+              exit 0
+            fi
+            echo "Waiting 30 seconds before retry..."
+            sleep 30
+          done
+          echo "Backend health check failed after 10 attempts"
+          exit 1
       
       - name: Check frontend
         run: |
-          curl -f http://${{ secrets.ALB_DNS }} || exit 1
+          for i in {1..10}; do
+            echo "Attempt $i: Checking frontend..."
+            if curl -f -s -o /dev/null -w "%{http_code}" http://${{ secrets.ALB_DNS }} | grep -q "200"; then
+              echo "Frontend is healthy!"
+              exit 0
+            fi
+            echo "Waiting 30 seconds before retry..."
+            sleep 30
+          done
+          echo "Frontend health check failed after 10 attempts"
+          exit 1
       
       - name: Success message
         run: |
-          echo "✅ Deployment successful!"
-          echo "📍 Application: http://${{ secrets.ALB_DNS }}"
+          echo "Deployment successful!"
+          echo "Application: http://${{ secrets.ALB_DNS }}"
