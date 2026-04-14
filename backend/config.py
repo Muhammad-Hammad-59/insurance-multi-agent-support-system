@@ -8,6 +8,7 @@ class Config:
     
     # Database paths from environment variables (with defaults)
     SQLITE_PATH = os.getenv('SQLITE_PATH', '/app/data/insurance_support.db')
+    print(f"SQLITE_PATH set to: {SQLITE_PATH}")
     CHROMA_PATH = os.getenv('CHROMA_PATH', '/app/chroma_db')
     COLLECTION_NAME = "insurance_FAQ_collection"
     # API Keys
@@ -15,7 +16,9 @@ class Config:
     GROQ_MODEL = os.getenv('GROQ_MODEL', 'llama3-70b-8192')
     
     # CORS settings for production
-    CORS_ORIGINS = os.getenv('CORS_ORIGINS', 'http://localhost:5173').split(',')
+    
+    CORS_ORIGINS = os.getenv('CORS_ORIGINS', 'http://localhost:80').split(',')
+    print(f"CORS_ORIGINS set to: {CORS_ORIGINS}")
     # Environment
     ENV = os.getenv('ENV', 'development')
     DEBUG = ENV == 'development'

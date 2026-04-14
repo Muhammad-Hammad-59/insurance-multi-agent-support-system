@@ -3,13 +3,13 @@ backend/main.py
 FastAPI application entry point.
 """
 
-from fastapi import FastAPI
-from fastapi.middleware.cors import CORSMiddleware
+ 
 from dotenv import load_dotenv
-from backend.config import Config
-
 load_dotenv()
 
+from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
+from backend.config import Config
 from backend.api.routes import router
 
 app = FastAPI(
@@ -18,24 +18,11 @@ app = FastAPI(
     version="1.0.0",
 )
 
-# Allow local frontend dev server
-# app.add_middleware(
-#     CORSMiddleware,
-#     allow_origins=Config.CORS_ORIGINS,
-#     allow_credentials=True,
-#     allow_methods=["*"],
-#     allow_headers=["*"],
-# )
-
-
+ 
+ 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=[
-        "http://localhost",
-        "http://localhost:80",
-        "http://127.0.0.1",
-        "http://127.0.0.1:80",
-    ],
+    allow_origins=Config.CORS_ORIGINS,
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
