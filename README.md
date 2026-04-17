@@ -5,8 +5,9 @@
 [![React](https://img.shields.io/badge/React-18+-blue.svg)](https://reactjs.org/)
 [![Docker](https://img.shields.io/badge/Docker-Ready-blue.svg)](https://www.docker.com/)
 [![AWS](https://img.shields.io/badge/AWS-ECS%20Fargate-orange.svg)](https://aws.amazon.com/ecs/)
-[![CI/CD](https://github.com/yourusername/insurance-support-ai/actions/workflows/deploy.yml/badge.svg)](https://github.com/yourusername/insurance-support-ai/actions)
-
+<!-- [![CI/CD](https://github.com/Muhammad-Hammad-59/insurance-support-ai/actions/workflows/deploy.yml/badge.svg)](https://github.com/Muhammad-Hammad-59/insurance-support-ai/actions) -->
+<!-- [![CI/CD Pipeline](https://github.com/Muhammad-Hammad-59/insurance-support-ai/actions/workflows/deploy.yml/badge.svg?branch=main)](https://github.com/Muhammad-Hammad-59/insurance-support-ai/actions/workflows/deploy.yml) -->
+[![Deploy to AWS](https://img.shields.io/github/actions/workflow/status/Muhammad-Hammad-59/insurance-support-ai/deploy.yml?branch=main)](https://github.com/Muhammad-Hammad-59/insurance-support-ai/actions)
 > 🚀 **Production-ready multi-agent AI system** that automates insurance customer support using LLM reasoning, intelligent routing, and semantic search.
 
 ## 📺 Usage Demo
@@ -77,13 +78,7 @@ Insurance Support AI solves this using a **multi-agent architecture**:
 
 ## 🏗️ Architecture Overview
 
-```id="arch01"
-Client → ALB → ECS (Frontend + Backend)
-        → Multi-Agent System
-        → SQLite + ChromaDB (EFS)
-        → Groq LLM APIs
-```
-
+![Architecture System Design](docs/screenshots/architecture-overview.png)
 ---
 
 ## 🛠️ Tech Stack
@@ -163,7 +158,7 @@ docker-compose up --build
 ## 📊 Monitoring
 
 * AWS CloudWatch (logs & metrics)
-* Phoenix (LLM tracing - optional)
+  
 
 ---
 
