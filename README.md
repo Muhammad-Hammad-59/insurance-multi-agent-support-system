@@ -12,12 +12,7 @@
 
 ## 📺 Usage Demo
 [![Watch Demo](docs/screenshots/chat-ui.png)](https://github.com/user-attachments/assets/adf135d5-2e78-450a-848b-3d0cecc4a9f0)
-<div align="center">
-  <video src="docs/video/demo.webm" width="80%" height="80%" controls autoplay muted loop>
-    Your browser does not support the video tag.
-  </video>
-  <p><i>Real-time agent routing and policy retrieval in action.</i></p>
-</div>
+ 
 
 ---
 
