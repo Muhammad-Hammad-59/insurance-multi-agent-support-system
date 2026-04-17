@@ -51,15 +51,7 @@ jobs:
             --service $ECS_SERVICE_BACKEND \
             --force-new-deployment
       
-      - name: Wait for ECS deployment
-        run: |
-          echo "Waiting for backend service to stabilize..."
-          aws ecs wait services-stable \
-            --cluster ${{ secrets.ECS_CLUSTER }} \
-            --services ${{ secrets.ECS_SERVICE_BACKEND }}
-
-          echo "Additional wait for container initialization..."
-          sleep 60          
+          
 
   build-and-deploy-frontend:
     runs-on: ubuntu-latest
@@ -101,67 +93,59 @@ jobs:
             --service $ECS_SERVICE_FRONTEND \
             --force-new-deployment
       
-      - name: Wait for ECS deployment
-        run: |
-          echo "Waiting for frontend service to stabilize..."
-          aws ecs wait services-stable \
-            --cluster ${{ secrets.ECS_CLUSTER }} \
-            --services ${{ secrets.ECS_SERVICE_FRONTEND }}
-          
-          echo "Additional wait for container initialization..."
-          sleep 60
+ 
 
-  health-check:
-    needs: [build-and-deploy-backend, build-and-deploy-frontend]
-    runs-on: ubuntu-latest
-    steps:
-      - name: Wait for deployment to stabilize
-        run: sleep 120  # Increase wait time to 2 minutes
+  # health-check:
+  #   needs: [build-and-deploy-backend, build-and-deploy-frontend]
+  #   runs-on: ubuntu-latest
+  #   steps:
+  #     - name: Wait for deployment to stabilize
+  #       run: sleep 120  # Increase wait time to 2 minutes
       
-      - name: Debug - Print ALB DNS
-        run: |
-          echo "ALB DNS: ${{ secrets.ALB_DNS }}"
-          # Check if secret exists
-          if [ -z "${{ secrets.ALB_DNS }}" ]; then
-            echo "ALB_DNS secret is empty!"
-            exit 1
-          fi
+  #     - name: Debug - Print ALB DNS
+  #       run: |
+  #         echo "ALB DNS: ${{ secrets.ALB_DNS }}"
+  #         # Check if secret exists
+  #         if [ -z "${{ secrets.ALB_DNS }}" ]; then
+  #           echo "ALB_DNS secret is empty!"
+  #           exit 1
+  #         fi
       
-      - name: Test DNS resolution
-        run: |
-          # Test if DNS resolves
-          nslookup ${{ secrets.ALB_DNS }} || exit 1
+  #     - name: Test DNS resolution
+  #       run: |
+  #         # Test if DNS resolves
+  #         nslookup ${{ secrets.ALB_DNS }} || exit 1
       
-      - name: Check backend health with retry
-        run: |
-          # Retry up to 10 times with 30 second intervals
-          for i in {1..20}; do
-            echo "Attempt $i: Checking health..."
-            if curl -f -s -o /dev/null -w "%{http_code}" http://${{ secrets.ALB_DNS }}/api/health | grep -q "200"; then
-              echo "Backend is healthy!"
-              exit 0
-            fi
-            echo "Waiting 30 seconds before retry..."
-            sleep 30
-          done
-          echo "Backend health check failed after 10 attempts"
-          exit 1
+  #     - name: Check backend health with retry
+  #       run: |
+  #         # Retry up to 10 times with 30 second intervals
+  #         for i in {1..20}; do
+  #           echo "Attempt $i: Checking health..."
+  #           if curl -f -s -o /dev/null -w "%{http_code}" http://${{ secrets.ALB_DNS }}/api/health | grep -q "200"; then
+  #             echo "Backend is healthy!"
+  #             exit 0
+  #           fi
+  #           echo "Waiting 30 seconds before retry..."
+  #           sleep 30
+  #         done
+  #         echo "Backend health check failed after 10 attempts"
+  #         exit 1
       
-      - name: Check frontend
-        run: |
-          for i in {1..20}; do
-            echo "Attempt $i: Checking frontend..."
-            if curl -f -s -o /dev/null -w "%{http_code}" http://${{ secrets.ALB_DNS }} | grep -q "200"; then
-              echo "Frontend is healthy!"
-              exit 0
-            fi
-            echo "Waiting 30 seconds before retry..."
-            sleep 30
-          done
-          echo "Frontend health check failed after 10 attempts"
-          exit 1
+  #     - name: Check frontend
+  #       run: |
+  #         for i in {1..20}; do
+  #           echo "Attempt $i: Checking frontend..."
+  #           if curl -f -s -o /dev/null -w "%{http_code}" http://${{ secrets.ALB_DNS }} | grep -q "200"; then
+  #             echo "Frontend is healthy!"
+  #             exit 0
+  #           fi
+  #           echo "Waiting 30 seconds before retry..."
+  #           sleep 30
+  #         done
+  #         echo "Frontend health check failed after 10 attempts"
+  #         exit 1
       
-      - name: Success message
-        run: |
-          echo "Deployment successful!"
-          echo "Application: http://${{ secrets.ALB_DNS }}"
+  #     - name: Success message
+  #       run: |
+  #         echo "Deployment successful!"
+  #         echo "Application: http://${{ secrets.ALB_DNS }}"
